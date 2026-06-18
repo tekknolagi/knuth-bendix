@@ -50,6 +50,24 @@ class Monoid
   end
 end
 
+# Find out all the indices (in the left string) where some prefix of right
+# matches a suffix of left
+def find_overlaps(left, right)
+  result = []
+  0.upto(left.length-1).each do |i|
+    left_substring = left[i..]
+    smaller, bigger = if left_substring.length < right.length
+                        [left_substring, right]
+                      else
+                        [right, left_substring]
+                      end
+    if bigger.start_with?(smaller)
+      result << i
+    end
+  end
+  result
+end
+
 require "minitest/autorun"
 
 class MonoidTests < Minitest::Test
@@ -104,5 +122,23 @@ class MonoidTests < Minitest::Test
     m = Monoid.new("abc", [])
     m.add_rule!(["a", "a"])
     assert_equal([], m.rules)
+  end
+end
+
+class FindOverlapsTests < Minitest::Test
+  def test_overlap_right_smaller
+    assert_equal([0, 3], find_overlaps("abca", "a"))
+  end
+
+  def test_overlap_left_smaller
+    assert_equal([0], find_overlaps("a", "abca"))
+  end
+
+  def test_no_overlap
+    assert_equal([], find_overlaps("a", "d"))
+  end
+
+  def test_contained
+    assert_equal([1], find_overlaps("abba", "bb"))
   end
 end
