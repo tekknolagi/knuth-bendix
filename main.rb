@@ -8,6 +8,7 @@ class Monoid
     @rules = rules
   end
 
+  # Apply each rule in arbitrary order until fixpoint
   def reduce(string)
     changed = true
     while changed
