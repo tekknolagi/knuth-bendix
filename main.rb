@@ -141,4 +141,8 @@ class FindOverlapsTests < Minitest::Test
   def test_contained
     assert_equal([1], find_overlaps("abba", "bb"))
   end
+
+  def test_slava
+    assert_equal([4, 5], find_overlaps("aababb", "bba"))
+  end
 end
