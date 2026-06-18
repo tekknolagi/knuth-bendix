@@ -33,6 +33,7 @@ class Monoid
     end
   end
 
+  # Make sure we go from more -> less
   def orient_rule!(rule)
     if less_than(rule[0], rule[1])
       rule[0], rule[1] = rule[1], rule[0]
@@ -40,6 +41,7 @@ class Monoid
     rule
   end
 
+  # Orient in-place and add new rule (if it's not a -> a)
   def add_rule!(rule)
     if rule[0] != rule[1]
       rules << orient_rule!(rule)
