@@ -13,7 +13,7 @@ class Monoid
     while changed
       changed = false
       for rule in rules
-        changed |= string.sub!(rule[0], rule[1])
+        changed ||= string.sub!(rule[0], rule[1])
       end
     end
     string
@@ -24,10 +24,15 @@ require "minitest/autorun"
 
 class MonoidTests < Minitest::Test
   def test_reduce_one_rule
-    thing = Monoid.new("ab", [["ab", ""]])
-    assert_equal("", thing.reduce(+"ab"))
-    assert_equal("a", thing.reduce(+"a"))
-    assert_equal("", thing.reduce(+"aaaabbbb"))
-    assert_equal("bb", thing.reduce(+"aaaabbbbbb"))
+    m = Monoid.new("ab", [["ab", ""]])
+    assert_equal("", m.reduce(+"ab"))
+    assert_equal("a", m.reduce(+"a"))
+    assert_equal("", m.reduce(+"aaaabbbb"))
+    assert_equal("bb", m.reduce(+"aaaabbbbbb"))
+  end
+
+  def test_reduce_multiple_rules
+    m = Monoid.new("abc", [["ab", "a"], ["bc", "b"], ["ac", "a"]])
+    assert_equal("ba", m.reduce(+"babbbccc"))
   end
 end
