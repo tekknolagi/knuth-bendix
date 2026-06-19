@@ -61,15 +61,15 @@ class Monoid
       # the overlap is fully contained in x's lhs
       # x: bbabbbb -> U
       # y: bab -> V
-      # bb bab bbbb
-      #    bab
-      # (U, bb V bbbb)
-      [x_right, x_left[..overlap-1] + y_right + x_left[overlap+y_right.length..]]
+      # b bab bbb
+      #   bab
+      # (U, b V bbb)
+      [x_right, x_left[..overlap-1] + y_right + x_left[overlap+y_left.length..]]
     else
       # x: bbbbba -> U
       # y: bab -> V
-      # bbbbb ba
-      #       ba b
+      # bbbb ba
+      #      ba b
       # (U b, bbbb V)
       [x_right + y_left[x_left.length-overlap..], x_left[..overlap-1]+y_right]
     end
@@ -159,13 +159,21 @@ class MonoidTests < Minitest::Test
 
   def test_critical_pair_contained
     m = Monoid.new("ab", [])
-    result = m.handle_overlap(["bbabbbb", "U"], ["bab", "V"], 2)
-    assert_equal(["U", "bbVbbbb"], result)
+    left = ["bbabbbb", "U"]
+    right = ["bab", "V"]
+    overlaps = find_overlaps(left.first, right.first)
+    assert_equal([1, 6], overlaps)
+    result = m.handle_overlap(left, right, overlaps[0])
+    assert_equal(["U", "bVbbb"], result)
   end
 
   def test_critical_pair_at_end
     m = Monoid.new("ab", [])
-    result = m.handle_overlap(["bbbbba", "U"], ["bab", "V"], 4)
+    left = ["bbbbba", "U"]
+    right = ["bab", "V"]
+    overlaps = find_overlaps(left.first, right.first)
+    assert_equal([4], overlaps)
+    result = m.handle_overlap(left, right, overlaps[0])
     assert_equal(["Ub", "bbbbV"], result)
   end
 end
