@@ -43,9 +43,13 @@ class Monoid
   end
 
   # Orient in-place and add new rule (if it's not a -> a)
+  # Return true if we added a rule and false otherwise
   def add_rule!(rule)
     if rule[0] != rule[1]
       rules << orient_rule!(rule)
+      true
+    else
+      false
     end
   end
 end
