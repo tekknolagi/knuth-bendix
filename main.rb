@@ -45,6 +45,7 @@ class Monoid
   # Orient in-place and add new rule (if it's not a -> a)
   # Return true if we added a rule and false otherwise
   def add_rule!(rule)
+    rule = [reduce(rule[0].dup), reduce(rule[1].dup)]
     if rule[0] != rule[1]
       rules << orient_rule!(rule)
       true
@@ -126,6 +127,13 @@ class MonoidTests < Minitest::Test
     m = Monoid.new("abc", [])
     m.add_rule!(["a", "a"])
     assert_equal([], m.rules)
+  end
+
+  def test_add_rule_reduces_rules
+    m = Monoid.new("abc", [])
+    m.add_rule!(["ab", ""])
+    m.add_rule!(["aaabbb", ""])
+    assert_equal([["ab", ""]], m.rules)
   end
 end
 
