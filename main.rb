@@ -53,6 +53,27 @@ class Monoid
       false
     end
   end
+
+  def handle_overlap(x, y, overlap)
+    x_left, x_right = x
+    y_left, y_right = y
+    if overlap + y_left.length <= x_left.length
+      # the overlap is fully contained in x's lhs
+      # x: bbabbbb -> U
+      # y: bab -> V
+      # bb bab bbbb
+      #    bab
+      # (U, bb V bbbb)
+      [x_right, x_left[..overlap-1] + y_right + x_left[overlap+y_right.length..]]
+    else
+      # x: bbbbba -> U
+      # y: bab -> V
+      # bbbbb ba
+      #       ba b
+      # (U b, bbbb V)
+      [x_right + y_left[x_left.length-overlap..], x_left[..overlap-1]+y_right]
+    end
+  end
 end
 
 # Find out all the indices (in the left string) where some prefix of right
@@ -134,6 +155,18 @@ class MonoidTests < Minitest::Test
     m.add_rule!(["ab", ""])
     m.add_rule!(["aaabbb", ""])
     assert_equal([["ab", ""]], m.rules)
+  end
+
+  def test_critical_pair_contained
+    m = Monoid.new("ab", [])
+    result = m.handle_overlap(["bbabbbb", "U"], ["bab", "V"], 2)
+    assert_equal(["U", "bbVbbbb"], result)
+  end
+
+  def test_critical_pair_at_end
+    m = Monoid.new("ab", [])
+    result = m.handle_overlap(["bbbbba", "U"], ["bab", "V"], 4)
+    assert_equal(["Ub", "bbbbV"], result)
   end
 end
 
