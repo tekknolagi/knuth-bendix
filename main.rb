@@ -84,19 +84,23 @@ class Monoid
   end
 
   def resolve_overlaps
-    to_add = []
-    rules.each do |x|
-      rules.each do |y|
-        x_left = x[0]
-        y_left = y[0]
-        find_overlaps(x_left, y_left).each do |overlap|
-          critical_pair = handle_overlap(x, y, overlap)
-          to_add << critical_pair
+    changed = true
+    while changed
+      changed = false
+      to_add = []
+      rules.each do |x|
+        rules.each do |y|
+          x_left = x[0]
+          y_left = y[0]
+          find_overlaps(x_left, y_left).each do |overlap|
+            critical_pair = handle_overlap(x, y, overlap)
+            to_add << critical_pair
+          end
         end
       end
-    end
-    to_add.each do |rule|
-      add_rule!(rule)
+      to_add.each do |rule|
+        changed |= add_rule!(rule)
+      end
     end
   end
 end
