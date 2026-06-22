@@ -109,7 +109,8 @@ end
 # matches a suffix of left
 def find_overlaps(left, right)
   result = []
-  0.upto(left.length-1).each do |i|
+  i = 0
+  while i < left.length
     left_substring = left[i..]
     smaller, bigger = if left_substring.length < right.length
                         [left_substring, right]
@@ -119,6 +120,7 @@ def find_overlaps(left, right)
     if bigger.start_with?(smaller)
       result << i
     end
+    i += 1
   end
   result
 end
