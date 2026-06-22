@@ -229,6 +229,11 @@ class MonoidTests < Minitest::Test
     m.resolve_overlaps
     assert_equal(rules + [["baaaa", "aaaab"]], m.rules)
   end
+
+  def test_challenging
+    m = Monoid.new("ab", [["aaaa", ""], ["ababba", "b"]])
+    skip
+  end
 end
 
 class FindOverlapsTests < Minitest::Test
