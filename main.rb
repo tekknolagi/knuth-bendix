@@ -25,9 +25,9 @@ class Monoid
   # Return false if left length >= right length or left lexically equal to or
   # greater than right
   def less_than(left, right)
-    if left.length < right.length
+    if left.bytesize < right.bytesize
       true
-    elsif left.length > right.length
+    elsif left.bytesize > right.bytesize
       false
     else
       left < right
@@ -65,21 +65,21 @@ class Monoid
   def handle_overlap(x, y, overlap)
     x_left, x_right = x
     y_left, y_right = y
-    if overlap + y_left.length <= x_left.length
+    if overlap + y_left.bytesize <= x_left.bytesize
       # the overlap is fully contained in x's lhs
       # x: bbabbbb -> U
       # y: bab -> V
       # b bab bbb
       #   bab
       # (U, b V bbb)
-      [x_right, string_upto(x_left, overlap-1) + y_right + x_left[overlap+y_left.length..]]
+      [x_right, string_upto(x_left, overlap-1) + y_right + x_left[overlap+y_left.bytesize..]]
     else
       # x: bbbbba -> U
       # y: bab -> V
       # bbbb ba
       #      ba b
       # (U b, bbbb V)
-      [x_right + y_left[x_left.length-overlap..], string_upto(x_left, overlap-1)+y_right]
+      [x_right + y_left[x_left.bytesize-overlap..], string_upto(x_left, overlap-1)+y_right]
     end
   end
 
@@ -110,9 +110,10 @@ end
 def find_overlaps(left, right)
   result = []
   i = 0
-  while i < left.length
+  right_length = right.bytesize
+  while i < left.bytesize
     left_substring = left[i..]
-    if left_substring.length < right.length
+    if left_substring.bytesize < right_length
       smaller = left_substring
       bigger = right
     else
