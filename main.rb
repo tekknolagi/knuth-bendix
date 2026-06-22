@@ -112,11 +112,13 @@ def find_overlaps(left, right)
   i = 0
   while i < left.length
     left_substring = left[i..]
-    smaller, bigger = if left_substring.length < right.length
-                        [left_substring, right]
-                      else
-                        [right, left_substring]
-                      end
+    if left_substring.length < right.length
+      smaller = left_substring
+      bigger = right
+    else
+      smaller = right
+      bigger = left_substring
+    end
     if bigger.start_with?(smaller)
       result << i
     end
