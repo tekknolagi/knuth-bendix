@@ -54,6 +54,14 @@ class Monoid
     end
   end
 
+  def string_upto(s, idx)
+    if idx < 0
+      ""
+    else
+      s[..idx]
+    end
+  end
+
   def handle_overlap(x, y, overlap)
     x_left, x_right = x
     y_left, y_right = y
@@ -64,14 +72,31 @@ class Monoid
       # b bab bbb
       #   bab
       # (U, b V bbb)
-      [x_right, x_left[..overlap-1] + y_right + x_left[overlap+y_left.length..]]
+      [x_right, string_upto(x_left, overlap-1) + y_right + x_left[overlap+y_left.length..]]
     else
       # x: bbbbba -> U
       # y: bab -> V
       # bbbb ba
       #      ba b
       # (U b, bbbb V)
-      [x_right + y_left[x_left.length-overlap..], x_left[..overlap-1]+y_right]
+      [x_right + y_left[x_left.length-overlap..], string_upto(x_left, overlap-1)+y_right]
+    end
+  end
+
+  def resolve_overlaps
+    to_add = []
+    rules.each do |x|
+      rules.each do |y|
+        x_left = x[0]
+        y_left = y[0]
+        find_overlaps(x_left, y_left).each do |overlap|
+          critical_pair = handle_overlap(x, y, overlap)
+          to_add << critical_pair
+        end
+      end
+    end
+    to_add.each do |rule|
+      add_rule!(rule)
     end
   end
 end
@@ -157,6 +182,14 @@ class MonoidTests < Minitest::Test
     assert_equal([["ab", ""]], m.rules)
   end
 
+  def test_critical_pair_at_beginning
+    m = Monoid.new("ab", [])
+    left = ["bbbb", "U"]
+    right = ["bbbb", "V"]
+    result = m.handle_overlap(left, right, 0)
+    assert_equal(["U", "V"], result)
+  end
+
   def test_critical_pair_contained
     m = Monoid.new("ab", [])
     left = ["bbabbbb", "U"]
@@ -175,6 +208,22 @@ class MonoidTests < Minitest::Test
     assert_equal([4], overlaps)
     result = m.handle_overlap(left, right, overlaps[0])
     assert_equal(["Ub", "bbbbV"], result)
+  end
+
+  def test_resolve_overlaps
+    rules = [["ab", "a"], ["bc", "b"]]
+    m = Monoid.new("abc", rules.dup)
+    m.resolve_overlaps
+    assert_equal(rules + [["ac", "a"]], m.rules)
+  end
+
+  def test_resolve_overlaps2
+    rules = [["bbbb", "aaaa"]]
+    m = Monoid.new("ab", rules.dup)
+    overlaps = find_overlaps(rules.first.first, rules.first.first)
+    assert_equal([0, 1, 2, 3], overlaps)
+    m.resolve_overlaps
+    assert_equal(rules + [["baaaa", "aaaab"]], m.rules)
   end
 end
 
