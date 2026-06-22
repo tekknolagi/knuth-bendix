@@ -99,7 +99,7 @@ class Monoid
         end
       end
       to_add.each do |rule|
-        changed |= add_rule!(rule)
+        changed ||= add_rule!(rule)
       end
     end
   end
